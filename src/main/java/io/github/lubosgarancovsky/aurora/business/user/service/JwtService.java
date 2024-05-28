@@ -66,6 +66,8 @@ public class JwtService {
 		Map<String, Object> claims = new HashMap<>();  
 		claims.put("name", user.name());
 		claims.put("email", user.email());
+		claims.put("color", user.color());
+		claims.put("picture", user.picture());
 		claims.put("createdAt", user.createdAt().toString());
 		claims.put("updatedAt", user.updatedAt().toString());
 		return claims;  
