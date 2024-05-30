@@ -1,5 +1,6 @@
 package io.github.lubosgarancovsky.aurora.rest_api.controller;
 
+import io.github.lubosgarancovsky.aurora.business.board.usecase.ListAllStatesUseCase;
 import io.github.lubosgarancovsky.aurora.business.board.usecase.ListBoardEntitiesUseCase;
 import io.github.lubosgarancovsky.aurora.business.board.usecase.UpdateBoardUseCase;
 import io.github.lubosgarancovsky.aurora.business.user.service.JwtService;
@@ -8,6 +9,8 @@ import io.github.lubosgarancovsky.aurora.domain.board.query.BoardListingQuery;
 import io.github.lubosgarancovsky.aurora.domain.board.query.ImmutableBoardListingQuery;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.BoardRequest;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.BoardResponse;
+import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.StoryStateListResponse;
+import io.github.lubosgarancovsky.aurora.rest_api.mapper.BoardMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,16 +23,19 @@ public class BoardController extends BaseController {
     private final UpdateBoardUseCase updateBoardUseCase;
 
     private final ListBoardEntitiesUseCase listBoardEntitiesUseCase;
+    private final ListAllStatesUseCase listAllStatesUseCase;
 
     public BoardController(
             ListBoardEntitiesUseCase listBoardEntitiesUseCase,
             JwtService jwtService,
-            UpdateBoardUseCase updateBoardUseCase
+            UpdateBoardUseCase updateBoardUseCase,
+            ListAllStatesUseCase listAllStatesUseCase
 
     ) {
         this.listBoardEntitiesUseCase = listBoardEntitiesUseCase;
         this.jwtService = jwtService;
         this.updateBoardUseCase = updateBoardUseCase;
+        this.listAllStatesUseCase = listAllStatesUseCase;
     }
 
 
@@ -62,5 +68,13 @@ public class BoardController extends BaseController {
                 .build();
 
         return this.listBoardEntitiesUseCase.execute(query);
+    }
+
+    @RequestMapping(
+            path = BASE_STATES_V1,
+            method = RequestMethod.GET
+    )
+    public StoryStateListResponse listAllStates() {
+        return BoardMapper.map(this.listAllStatesUseCase.execute(null));
     }
 }

@@ -2,6 +2,8 @@ package io.github.lubosgarancovsky.aurora.business.board.repository;
 
 import io.github.lubosgarancovsky.aurora.business.JooqRepository;
 import io.github.lubosgarancovsky.aurora.domain.board.command.UpdateBoardCommand;
+import io.github.lubosgarancovsky.aurora.domain.board.entity.ImmutableStoryStateEntity;
+import io.github.lubosgarancovsky.aurora.domain.board.entity.StoryStateEntity;
 import io.github.lubosgarancovsky.aurora.domain.board.query.BoardListingQuery;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.BoardEntryResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.BoardResponse;
@@ -55,6 +57,22 @@ public class JooqBoardRepository extends JooqRepository {
 
         dslContext.batchInsert(records).execute();
     }
+
+    public List<StoryStateEntity> listAllStates() {
+        List<? extends Record> records = dslContext
+                .select(STORY_STATE.ID, STORY_STATE.NAME, STORY_STATE.CODE)
+                .from(STORY_STATE)
+                .fetch();
+
+        return records.stream().map(record -> {
+            return (StoryStateEntity) ImmutableStoryStateEntity.builder()
+                    .id(record.get(STORY_STATE.ID))
+                    .name(record.get(STORY_STATE.NAME))
+                    .code(record.get(STORY_STATE.CODE))
+                    .build();
+        }).toList();
+    }
+
 
     private BoardEntryResponse map(Record record) {
         return ImmutableBoardEntryResponse.builder()

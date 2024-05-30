@@ -26,4 +26,6 @@ public abstract class BaseController {
     public static final String INVITATION_DETAIL_URI = BASE_INVITATION_V1 + "/{id}";
 
     public static final String PROJECT_BOARD_URI = BASE_PROJECTS_V1 + ID_PARAM + "/board";
+
+    public static final String BASE_STATES_V1 = "/v1/states";
 }
