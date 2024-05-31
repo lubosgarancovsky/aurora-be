@@ -10,7 +10,10 @@ import io.github.lubosgarancovsky.aurora.repository.model.tables.Partners;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.ProjectBoard;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Projects;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Requests;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Stories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryType;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Substories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.TeamPartner;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Teams;
 
@@ -66,9 +69,24 @@ public class Public extends SchemaImpl {
     public final Requests REQUESTS = Requests.REQUESTS;
 
     /**
+     * The table <code>public.stories</code>.
+     */
+    public final Stories STORIES = Stories.STORIES;
+
+    /**
      * The table <code>public.story_state</code>.
      */
     public final StoryState STORY_STATE = StoryState.STORY_STATE;
+
+    /**
+     * The table <code>public.story_type</code>.
+     */
+    public final StoryType STORY_TYPE = StoryType.STORY_TYPE;
+
+    /**
+     * The table <code>public.substories</code>.
+     */
+    public final Substories SUBSTORIES = Substories.SUBSTORIES;
 
     /**
      * The table <code>public.team_partner</code>.
@@ -102,7 +120,10 @@ public class Public extends SchemaImpl {
             ProjectBoard.PROJECT_BOARD,
             Projects.PROJECTS,
             Requests.REQUESTS,
+            Stories.STORIES,
             StoryState.STORY_STATE,
+            StoryType.STORY_TYPE,
+            Substories.SUBSTORIES,
             TeamPartner.TEAM_PARTNER,
             Teams.TEAMS
         );

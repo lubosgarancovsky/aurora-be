@@ -55,8 +55,6 @@ public class ProjectController extends BaseController {
         this.jwtService = jwtService;
         this.listFilteringParser = new ListFilteringParser();
         this.listOrderingParser = new ListOrderingParser();
-
-
     }
 
     @RequestMapping(

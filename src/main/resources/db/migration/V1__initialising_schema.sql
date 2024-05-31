@@ -114,3 +114,66 @@ INSERT INTO project_board (id, project_id, state_id) VALUES ('92c4b160-1cfc-4d56
 INSERT INTO project_board (id, project_id, state_id) VALUES ('2937fe70-800e-461d-aa80-cd0c576d55a5', '71f2d38f-3cdf-42aa-ad0d-dac2d5bd794e', '562aec2e-8995-4ab8-aa70-358fc7664a95');
 INSERT INTO project_board (id, project_id, state_id) VALUES ('b0a76f78-ef60-4274-b437-31b406793861', '71f2d38f-3cdf-42aa-ad0d-dac2d5bd794e', '2dcaeec5-81d6-445c-9b31-fc526612c5ae');
 INSERT INTO project_board (id, project_id, state_id) VALUES ('1120a005-8d34-4ca6-b731-b389e43815d9', '71f2d38f-3cdf-42aa-ad0d-dac2d5bd794e', 'b7b04545-1777-432e-b7f8-628fdfa7801c');
+
+CREATE TABLE story_type (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    name text NOT NULL,
+    code text NOT NULL
+);
+
+INSERT INTO story_type (id, name, code) VALUES ('aba66ad5-5762-4a10-8853-aab6a40d300a', 'Story', 'story');
+INSERT INTO story_type (id, name, code) VALUES ('bfd991ec-6b4f-413b-b077-00523157e1e0', 'Bug', 'bug');
+
+CREATE TABLE stories (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    name text NOT NULL,
+    description text DEFAULT '',
+    code text NOT NULL,
+    in_board BOOLEAN NOT NULL DEFAULT FALSE,
+    project_id uuid NOT NULL REFERENCES projects(id),
+    state_id uuid NOT NULL REFERENCES story_state(id),
+    type_id uuid NOT NULL REFERENCES story_type(id),
+    created_by uuid NOT NULL REFERENCES partners(id),
+    assigned_to uuid REFERENCES partners(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+INSERT INTO stories (id, name, description, code, in_board, project_id, state_id, type_id, created_by, assigned_to) VALUES ('c6ab8968-5dec-454f-97dd-aeb78925b41f', 'Test story', 'This is a description of first story', 'AUR-1', TRUE, '71f2d38f-3cdf-42aa-ad0d-dac2d5bd794e', '1bb861b4-368a-4657-bb59-8e114d7476bf', 'aba66ad5-5762-4a10-8853-aab6a40d300a', 'fa3ddf2e-18cf-471b-aee2-31342b7ed6de', 'fa3ddf2e-18cf-471b-aee2-31342b7ed6de');
+INSERT INTO stories (id, name, description, code, in_board, project_id, state_id, type_id, created_by, assigned_to) VALUES ('faaf5b45-766c-44c0-a249-3007d84197c0', 'Test bug', 'This is a description of first bug', 'AUR-2', TRUE, '71f2d38f-3cdf-42aa-ad0d-dac2d5bd794e', 'b7b04545-1777-432e-b7f8-628fdfa7801c', 'bfd991ec-6b4f-413b-b077-00523157e1e0', 'fa3ddf2e-18cf-471b-aee2-31342b7ed6de', NULL);
+
+CREATE TABLE substories (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    parent_id uuid NOT NULL REFERENCES stories(id),
+    name text NOT NULL,
+    description text DEFAULT '',
+    code text NOT NULL,
+    state_id uuid NOT NULL REFERENCES story_state(id),
+    type_id uuid NOT NULL REFERENCES story_type(id),
+    created_by uuid NOT NULL REFERENCES partners(id),
+    assigned_to uuid REFERENCES partners(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+INSERT INTO substories (id, parent_id, name, description, code, state_id, type_id, created_by, assigned_to) VALUES (
+    'f88d309c-b6c6-4f4d-84a2-e08db82eb6cd',
+    'c6ab8968-5dec-454f-97dd-aeb78925b41f',
+    'Test substory',
+    'This is a description of first substory',
+    'AUR-3',
+    '1bb861b4-368a-4657-bb59-8e114d7476bf',
+    'aba66ad5-5762-4a10-8853-aab6a40d300a',
+    'fa3ddf2e-18cf-471b-aee2-31342b7ed6de',
+    'fa3ddf2e-18cf-471b-aee2-31342b7ed6de'
+    );
+
+INSERT INTO substories (id, parent_id, name, description, code, state_id, type_id, created_by, assigned_to) VALUES (
+    'b4163a93-b4d6-4c51-a3a2-13a292dc28b1',
+    'c6ab8968-5dec-454f-97dd-aeb78925b41f',
+    'Test substory 2',
+    'This is a description of the second substory',
+    'AUR-4',
+    '1bb861b4-368a-4657-bb59-8e114d7476bf',
+    'aba66ad5-5762-4a10-8853-aab6a40d300a',
+    'fa3ddf2e-18cf-471b-aee2-31342b7ed6de',
+    NULL
+    );

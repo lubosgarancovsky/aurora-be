@@ -10,7 +10,10 @@ import io.github.lubosgarancovsky.aurora.repository.model.tables.Partners;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.ProjectBoard;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Projects;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Requests;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Stories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryType;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Substories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.TeamPartner;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Teams;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.FlywaySchemaHistoryRecord;
@@ -19,7 +22,10 @@ import io.github.lubosgarancovsky.aurora.repository.model.tables.records.Partner
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.ProjectBoardRecord;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.ProjectsRecord;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.RequestsRecord;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.records.StoriesRecord;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.StoryStateRecord;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.records.StoryTypeRecord;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.records.SubstoriesRecord;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.TeamPartnerRecord;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.records.TeamsRecord;
 
@@ -47,7 +53,10 @@ public class Keys {
     public static final UniqueKey<ProjectBoardRecord> PROJECT_BOARD_PKEY = Internal.createUniqueKey(ProjectBoard.PROJECT_BOARD, DSL.name("project_board_pkey"), new TableField[] { ProjectBoard.PROJECT_BOARD.ID }, true);
     public static final UniqueKey<ProjectsRecord> PROJECTS_PKEY = Internal.createUniqueKey(Projects.PROJECTS, DSL.name("projects_pkey"), new TableField[] { Projects.PROJECTS.ID }, true);
     public static final UniqueKey<RequestsRecord> REQUESTS_PKEY = Internal.createUniqueKey(Requests.REQUESTS, DSL.name("requests_pkey"), new TableField[] { Requests.REQUESTS.ID }, true);
+    public static final UniqueKey<StoriesRecord> STORIES_PKEY = Internal.createUniqueKey(Stories.STORIES, DSL.name("stories_pkey"), new TableField[] { Stories.STORIES.ID }, true);
     public static final UniqueKey<StoryStateRecord> STORY_STATE_PKEY = Internal.createUniqueKey(StoryState.STORY_STATE, DSL.name("story_state_pkey"), new TableField[] { StoryState.STORY_STATE.ID }, true);
+    public static final UniqueKey<StoryTypeRecord> STORY_TYPE_PKEY = Internal.createUniqueKey(StoryType.STORY_TYPE, DSL.name("story_type_pkey"), new TableField[] { StoryType.STORY_TYPE.ID }, true);
+    public static final UniqueKey<SubstoriesRecord> SUBSTORIES_PKEY = Internal.createUniqueKey(Substories.SUBSTORIES, DSL.name("substories_pkey"), new TableField[] { Substories.SUBSTORIES.ID }, true);
     public static final UniqueKey<TeamPartnerRecord> TEAM_PARTNER_PKEY = Internal.createUniqueKey(TeamPartner.TEAM_PARTNER, DSL.name("team_partner_pkey"), new TableField[] { TeamPartner.TEAM_PARTNER.ID }, true);
     public static final UniqueKey<TeamsRecord> TEAMS_PKEY = Internal.createUniqueKey(Teams.TEAMS, DSL.name("teams_pkey"), new TableField[] { Teams.TEAMS.ID }, true);
 
@@ -59,6 +68,16 @@ public class Keys {
     public static final ForeignKey<ProjectBoardRecord, ProjectsRecord> PROJECT_BOARD__PROJECT_BOARD_PROJECT_ID_FKEY = Internal.createForeignKey(ProjectBoard.PROJECT_BOARD, DSL.name("project_board_project_id_fkey"), new TableField[] { ProjectBoard.PROJECT_BOARD.PROJECT_ID }, Keys.PROJECTS_PKEY, new TableField[] { Projects.PROJECTS.ID }, true);
     public static final ForeignKey<ProjectBoardRecord, StoryStateRecord> PROJECT_BOARD__PROJECT_BOARD_STATE_ID_FKEY = Internal.createForeignKey(ProjectBoard.PROJECT_BOARD, DSL.name("project_board_state_id_fkey"), new TableField[] { ProjectBoard.PROJECT_BOARD.STATE_ID }, Keys.STORY_STATE_PKEY, new TableField[] { StoryState.STORY_STATE.ID }, true);
     public static final ForeignKey<ProjectsRecord, PartnersRecord> PROJECTS__PROJECTS_CREATED_BY_FKEY = Internal.createForeignKey(Projects.PROJECTS, DSL.name("projects_created_by_fkey"), new TableField[] { Projects.PROJECTS.CREATED_BY }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
+    public static final ForeignKey<StoriesRecord, PartnersRecord> STORIES__STORIES_ASSIGNED_TO_FKEY = Internal.createForeignKey(Stories.STORIES, DSL.name("stories_assigned_to_fkey"), new TableField[] { Stories.STORIES.ASSIGNED_TO }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
+    public static final ForeignKey<StoriesRecord, PartnersRecord> STORIES__STORIES_CREATED_BY_FKEY = Internal.createForeignKey(Stories.STORIES, DSL.name("stories_created_by_fkey"), new TableField[] { Stories.STORIES.CREATED_BY }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
+    public static final ForeignKey<StoriesRecord, ProjectsRecord> STORIES__STORIES_PROJECT_ID_FKEY = Internal.createForeignKey(Stories.STORIES, DSL.name("stories_project_id_fkey"), new TableField[] { Stories.STORIES.PROJECT_ID }, Keys.PROJECTS_PKEY, new TableField[] { Projects.PROJECTS.ID }, true);
+    public static final ForeignKey<StoriesRecord, StoryStateRecord> STORIES__STORIES_STATE_ID_FKEY = Internal.createForeignKey(Stories.STORIES, DSL.name("stories_state_id_fkey"), new TableField[] { Stories.STORIES.STATE_ID }, Keys.STORY_STATE_PKEY, new TableField[] { StoryState.STORY_STATE.ID }, true);
+    public static final ForeignKey<StoriesRecord, StoryTypeRecord> STORIES__STORIES_TYPE_ID_FKEY = Internal.createForeignKey(Stories.STORIES, DSL.name("stories_type_id_fkey"), new TableField[] { Stories.STORIES.TYPE_ID }, Keys.STORY_TYPE_PKEY, new TableField[] { StoryType.STORY_TYPE.ID }, true);
+    public static final ForeignKey<SubstoriesRecord, PartnersRecord> SUBSTORIES__SUBSTORIES_ASSIGNED_TO_FKEY = Internal.createForeignKey(Substories.SUBSTORIES, DSL.name("substories_assigned_to_fkey"), new TableField[] { Substories.SUBSTORIES.ASSIGNED_TO }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
+    public static final ForeignKey<SubstoriesRecord, PartnersRecord> SUBSTORIES__SUBSTORIES_CREATED_BY_FKEY = Internal.createForeignKey(Substories.SUBSTORIES, DSL.name("substories_created_by_fkey"), new TableField[] { Substories.SUBSTORIES.CREATED_BY }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
+    public static final ForeignKey<SubstoriesRecord, StoriesRecord> SUBSTORIES__SUBSTORIES_PARENT_ID_FKEY = Internal.createForeignKey(Substories.SUBSTORIES, DSL.name("substories_parent_id_fkey"), new TableField[] { Substories.SUBSTORIES.PARENT_ID }, Keys.STORIES_PKEY, new TableField[] { Stories.STORIES.ID }, true);
+    public static final ForeignKey<SubstoriesRecord, StoryStateRecord> SUBSTORIES__SUBSTORIES_STATE_ID_FKEY = Internal.createForeignKey(Substories.SUBSTORIES, DSL.name("substories_state_id_fkey"), new TableField[] { Substories.SUBSTORIES.STATE_ID }, Keys.STORY_STATE_PKEY, new TableField[] { StoryState.STORY_STATE.ID }, true);
+    public static final ForeignKey<SubstoriesRecord, StoryTypeRecord> SUBSTORIES__SUBSTORIES_TYPE_ID_FKEY = Internal.createForeignKey(Substories.SUBSTORIES, DSL.name("substories_type_id_fkey"), new TableField[] { Substories.SUBSTORIES.TYPE_ID }, Keys.STORY_TYPE_PKEY, new TableField[] { StoryType.STORY_TYPE.ID }, true);
     public static final ForeignKey<TeamPartnerRecord, PartnersRecord> TEAM_PARTNER__TEAM_PARTNER_PARTNER_ID_FKEY = Internal.createForeignKey(TeamPartner.TEAM_PARTNER, DSL.name("team_partner_partner_id_fkey"), new TableField[] { TeamPartner.TEAM_PARTNER.PARTNER_ID }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);
     public static final ForeignKey<TeamPartnerRecord, TeamsRecord> TEAM_PARTNER__TEAM_PARTNER_TEAM_ID_FKEY = Internal.createForeignKey(TeamPartner.TEAM_PARTNER, DSL.name("team_partner_team_id_fkey"), new TableField[] { TeamPartner.TEAM_PARTNER.TEAM_ID }, Keys.TEAMS_PKEY, new TableField[] { Teams.TEAMS.ID }, true);
     public static final ForeignKey<TeamsRecord, PartnersRecord> TEAMS__TEAMS_CREATED_BY_FKEY = Internal.createForeignKey(Teams.TEAMS, DSL.name("teams_created_by_fkey"), new TableField[] { Teams.TEAMS.CREATED_BY }, Keys.PARTNERS_PKEY, new TableField[] { Partners.PARTNERS.ID }, true);

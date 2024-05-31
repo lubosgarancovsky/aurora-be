@@ -10,7 +10,10 @@ import io.github.lubosgarancovsky.aurora.repository.model.tables.Partners;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.ProjectBoard;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Projects;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Requests;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Stories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryType;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.Substories;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.TeamPartner;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Teams;
 
@@ -52,9 +55,24 @@ public class Tables {
     public static final Requests REQUESTS = Requests.REQUESTS;
 
     /**
+     * The table <code>public.stories</code>.
+     */
+    public static final Stories STORIES = Stories.STORIES;
+
+    /**
      * The table <code>public.story_state</code>.
      */
     public static final StoryState STORY_STATE = StoryState.STORY_STATE;
+
+    /**
+     * The table <code>public.story_type</code>.
+     */
+    public static final StoryType STORY_TYPE = StoryType.STORY_TYPE;
+
+    /**
+     * The table <code>public.substories</code>.
+     */
+    public static final Substories SUBSTORIES = Substories.SUBSTORIES;
 
     /**
      * The table <code>public.team_partner</code>.
