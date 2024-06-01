@@ -96,8 +96,10 @@ public class JooqStoryRepository extends JooqRepository {
         dslContext.update(STORIES)
                 .set(STORIES.NAME, command.name())
                 .set(STORIES.DESCRIPTION, command.description())
+                .set(STORIES.IN_BOARD, command.inBoard())
                 .set(STORIES.STATE_ID, command.stateId())
                 .set(STORIES.TYPE_ID, command.typeId())
+                .set(STORIES.ASSIGNED_TO, command.assigneeId().orElse(null))
                 .where(STORIES.ID.eq(command.storyId()))
                 .execute();
     }
