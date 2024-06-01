@@ -9,5 +9,4 @@ import java.util.UUID;
 
 @Value.Immutable
 public interface StoryListingQuery extends ListingQuery<StoryListingAttribute>, Query {
-    UUID projectId();
 }

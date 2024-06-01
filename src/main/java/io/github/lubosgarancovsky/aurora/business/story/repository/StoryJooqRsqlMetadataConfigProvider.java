@@ -12,6 +12,7 @@ public class StoryJooqRsqlMetadataConfigProvider implements JooqRsqlMetadataConf
         metadata
                 .addColumnInfo(StoryListingAttribute.NAME.apiName(), STORIES.NAME)
                 .addColumnInfo(StoryListingAttribute.CODE.apiName(), STORIES.CODE)
+                .addColumnInfo(StoryListingAttribute.PROJECT_ID.apiName(), STORIES.PROJECT_ID)
                 .addColumnInfo(StoryListingAttribute.CREATED_AT.apiName(), STORIES.CREATED_AT)
                 .addColumnInfo(StoryListingAttribute.CREATED_BY.apiName(), STORIES.CREATED_BY)
                 .addColumnInfo(StoryListingAttribute.IN_BOARD.apiName(), STORIES.IN_BOARD)

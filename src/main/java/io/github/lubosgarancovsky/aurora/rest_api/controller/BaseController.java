@@ -30,4 +30,10 @@ public abstract class BaseController {
     public static final String BASE_STATES_V1 = "/v1/states";
 
     public static final String STORIES_BY_PROJECT_URI = BASE_PROJECTS_V1 + ID_PARAM + "/stories";
+
+    public static final String BASE_STORY_V1 = "/v1/stories";
+
+    public static final String STORY_TYPE_URI = "/v1/stories/types";
+
+    public static final String STORY_DETAIL_URI = "/v1/stories" + ID_PARAM;
 }

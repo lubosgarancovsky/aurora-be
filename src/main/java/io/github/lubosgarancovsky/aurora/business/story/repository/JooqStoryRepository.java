@@ -1,6 +1,7 @@
 package io.github.lubosgarancovsky.aurora.business.story.repository;
 
 import io.github.lubosgarancovsky.aurora.business.JooqRepository;
+import io.github.lubosgarancovsky.aurora.business.story.repository.mapper.JooqStoryRepositoryMapper;
 import io.github.lubosgarancovsky.aurora.domain.story.command.CreateStoryCommand;
 
 import static io.github.lubosgarancovsky.aurora.repository.model.tables.Partners.PARTNERS;
@@ -9,23 +10,29 @@ import static io.github.lubosgarancovsky.aurora.repository.model.tables.StoryTyp
 import static io.github.lubosgarancovsky.aurora.repository.model.tables.Substories.SUBSTORIES;
 import static io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState.STORY_STATE;
 
+import io.github.lubosgarancovsky.aurora.domain.story.command.UpdateStoryCommand;
+import io.github.lubosgarancovsky.aurora.domain.story.entity.ImmutableStoryTypeEntity;
+import io.github.lubosgarancovsky.aurora.domain.story.entity.StoryEntity;
+import io.github.lubosgarancovsky.aurora.domain.story.entity.StoryTypeEntity;
+import io.github.lubosgarancovsky.aurora.domain.story.query.StoryDetailQuery;
 import io.github.lubosgarancovsky.aurora.domain.story.query.StoryListingQuery;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Partners;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryType;
+import io.github.lubosgarancovsky.aurora.repository.model.tables.records.StoryTypeRecord;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.EntityCreatedResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.ImmutableEntityCreatedResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.ListOfStories;
 import io.github.lubosgarancovsky.persistance.jooq.handler.JooqPaginatedSelectQueryHandler;
 import io.github.lubosgarancovsky.persistance.jooq.handler.mapper.PaginatedResultMapper;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Select;
 import org.springframework.stereotype.Repository;
 
 import static io.github.lubosgarancovsky.aurora.business.story.repository.mapper.JooqStoryRepositoryMapper.listingMapper;
+import static io.github.lubosgarancovsky.aurora.rest_api.error.StoryErrorCode.STORY_NOT_FOUND;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -63,6 +70,85 @@ public class JooqStoryRepository extends JooqRepository {
     }
 
     public ListOfStories list(StoryListingQuery query) {
+        final var stories = baseSelect();
+
+        final JooqPaginatedSelectQueryHandler<StoryListingQuery, ListOfStories>
+                paginatedListingHandler =
+                new JooqPaginatedSelectQueryHandler<>(
+                        query, new StoryJooqRsqlMetadataConfigProvider());
+
+        final PaginatedResultMapper<StoryListingQuery, ListOfStories> paginated =
+                paginatedListingHandler.handle(stories.getQuery());
+
+        return paginated.map(listingMapper);
+    }
+
+    public List<StoryTypeEntity> listStoryTypes() {
+         final var types = dslContext
+                .select(STORY_TYPE.ID, STORY_TYPE.NAME, STORY_TYPE.CODE)
+                .from(STORY_TYPE)
+                .fetch();
+
+         return types.stream().map(this::map).toList();
+    }
+
+    public void update(UpdateStoryCommand command) {
+        dslContext.update(STORIES)
+                .set(STORIES.NAME, command.name())
+                .set(STORIES.DESCRIPTION, command.description())
+                .set(STORIES.STATE_ID, command.stateId())
+                .set(STORIES.TYPE_ID, command.typeId())
+                .where(STORIES.ID.eq(command.storyId()))
+                .execute();
+    }
+
+    public StoryEntity detail(StoryDetailQuery query) {
+        final var stories = baseSelect()
+                .where(STORIES.ID.eq(query.storyId()))
+                .fetch();
+
+        if(stories.isEmpty()) {
+            throw STORY_NOT_FOUND.createError(query.storyId().toString()).convertToException();
+        }
+
+        return JooqStoryRepositoryMapper.map(stories.stream()).get(0);
+    }
+
+    private Integer count(UUID projectId) {
+        Select<Record1<UUID>> storyCount = dslContext.select(STORIES.ID)
+                .from(STORIES)
+                .where(STORIES.PROJECT_ID.eq(projectId));
+
+        Select<Record1<UUID>> substoryCount = dslContext.select(SUBSTORIES.ID)
+                .from(SUBSTORIES)
+                .join(STORIES)
+                .on(SUBSTORIES.PARENT_ID.eq(STORIES.ID))
+                .where(STORIES.PROJECT_ID.eq(projectId));
+
+        var combinedCount = dslContext
+                .selectCount()
+                .from(storyCount.unionAll(substoryCount).asTable("combined"));
+
+        return combinedCount.fetchOne(0, Integer.class);
+    }
+
+    private UUID stateIdByCode(String code) {
+        return dslContext
+                .select(STORY_STATE.ID)
+                .from(STORY_STATE)
+                .where(STORY_STATE.CODE.eq(code))
+                .fetchOne(0, UUID.class);
+    }
+
+    private StoryTypeEntity map(Record3<UUID, String, String> record) {
+        return ImmutableStoryTypeEntity.builder()
+                .id(record.get(0, UUID.class))
+                .name(record.get(1, String.class))
+                .code(record.get(2, String.class))
+                .build();
+    }
+
+    private SelectOnConditionStep<Record> baseSelect() {
         Partners cb = PARTNERS.as("createdBy");
         Partners as = PARTNERS.as("assignedTo");
         Partners subCb = PARTNERS.as("subStoryCreatedBy");
@@ -72,7 +158,7 @@ public class JooqStoryRepository extends JooqRepository {
         StoryState subStoryState = STORY_STATE.as("subStoryState");
         StoryType subStoryType = STORY_TYPE.as("subStoryType");
 
-        final var stories = dslContext.select(
+        return dslContext.select(
                         STORIES.ID.as("storyId"),
                         STORIES.NAME.as("storyName"),
                         STORIES.DESCRIPTION.as("storyDescription"),
@@ -127,43 +213,6 @@ public class JooqStoryRepository extends JooqRepository {
                 .leftJoin(subStoryState).on(subStoryState.ID.eq(SUBSTORIES.STATE_ID))
                 .leftJoin(subStoryType).on(subStoryType.ID.eq(SUBSTORIES.TYPE_ID))
                 .leftJoin(subCb).on(subCb.ID.eq(SUBSTORIES.CREATED_BY))
-                .leftJoin(subAs).on(subAs.ID.eq(SUBSTORIES.ASSIGNED_TO))
-                .where(STORIES.PROJECT_ID.eq(query.projectId()));
-
-        final JooqPaginatedSelectQueryHandler<StoryListingQuery, ListOfStories>
-                paginatedListingHandler =
-                new JooqPaginatedSelectQueryHandler<>(
-                        query, new StoryJooqRsqlMetadataConfigProvider());
-
-        final PaginatedResultMapper<StoryListingQuery, ListOfStories> paginated =
-                paginatedListingHandler.handle(stories.getQuery());
-
-        return paginated.map(listingMapper);
-    }
-
-    private Integer count(UUID projectId) {
-        Select<Record1<UUID>> storyCount = dslContext.select(STORIES.ID)
-                .from(STORIES)
-                .where(STORIES.PROJECT_ID.eq(projectId));
-
-        Select<Record1<UUID>> substoryCount = dslContext.select(SUBSTORIES.ID)
-                .from(SUBSTORIES)
-                .join(STORIES)
-                .on(SUBSTORIES.PARENT_ID.eq(STORIES.ID))
-                .where(STORIES.PROJECT_ID.eq(projectId));
-
-        var combinedCount = dslContext
-                .selectCount()
-                .from(storyCount.unionAll(substoryCount).asTable("combined"));
-
-        return combinedCount.fetchOne(0, Integer.class);
-    }
-
-    private UUID stateIdByCode(String code) {
-        return dslContext
-                .select(STORY_STATE.ID)
-                .from(STORY_STATE)
-                .where(STORY_STATE.CODE.eq(code))
-                .fetchOne(0, UUID.class);
+                .leftJoin(subAs).on(subAs.ID.eq(SUBSTORIES.ASSIGNED_TO));
     }
 }

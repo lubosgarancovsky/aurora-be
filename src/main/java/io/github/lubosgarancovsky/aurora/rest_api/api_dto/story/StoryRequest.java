@@ -15,6 +15,7 @@ public interface StoryRequest {
     String description();
     Boolean inBoard();
     String typeId();
+    String stateId();
     @Nullable
     String assigneeId();
 }

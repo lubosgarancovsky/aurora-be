@@ -8,6 +8,8 @@ import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.ImmutableStorySt
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.board.StoryStateResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.*;
 
+import java.util.List;
+
 public class StoryMapper {
 
     public static StoryStateResponse map(StoryStateEntity state) {
@@ -61,6 +63,12 @@ public class StoryMapper {
                 .pageSize(list.pageSize())
                 .page(list.page())
                 .addAllItems(list.items().stream().map(StoryMapper::map).toList())
+                .build();
+    }
+
+    public static StoryTypeListResponse map(List<StoryTypeEntity> list) {
+        return ImmutableStoryTypeListResponse.builder()
+                .items(list.stream().map(StoryMapper::map).toList())
                 .build();
     }
 }

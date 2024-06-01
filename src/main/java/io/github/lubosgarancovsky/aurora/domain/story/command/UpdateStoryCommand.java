@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Value.Immutable
-public interface CreateStoryCommand extends Command {
+public interface UpdateStoryCommand extends Command {
 
     String name();
     String description();
@@ -16,6 +16,5 @@ public interface CreateStoryCommand extends Command {
     UUID stateId();
     Optional<UUID> assigneeId();
     Boolean inBoard();
-    UUID userId();
-    ProjectEntity project();
+    UUID storyId();
 }

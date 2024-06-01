@@ -5,6 +5,7 @@ import io.github.lubosgarancovsky.domain.shared.listing.ListingAttribute;
 public enum StoryListingAttribute implements ListingAttribute {
     NAME("name", true, true),
     CODE("code", false, true),
+    PROJECT_ID("projectId", false, true),
     CREATED_AT("createdAt", true, true),
     CREATED_BY("createdBy", false, true),
     IN_BOARD("inBoard", false, true),
