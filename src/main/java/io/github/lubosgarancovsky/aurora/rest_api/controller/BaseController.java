@@ -36,4 +36,7 @@ public abstract class BaseController {
     public static final String STORY_TYPE_URI = "/v1/stories/types";
 
     public static final String STORY_DETAIL_URI = "/v1/stories" + ID_PARAM;
+
+    public static final String BASE_SUBSTORY_V1 = "/v1/stories" + ID_PARAM + "/substories";
+    public static final String SUBSTORY_DETAIL_URI = "/v1/stories" + ID_PARAM + "/substories" + "/{substoryId}";
 }

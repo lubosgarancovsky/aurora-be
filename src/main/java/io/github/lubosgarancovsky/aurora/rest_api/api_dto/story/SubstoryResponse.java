@@ -17,6 +17,7 @@ import java.util.List;
 public interface SubstoryResponse {
 
     String id();
+    String parentId();
     String name();
     String description();
     String code();

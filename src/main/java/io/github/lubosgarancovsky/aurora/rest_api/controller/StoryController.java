@@ -7,15 +7,9 @@ import io.github.lubosgarancovsky.aurora.domain.listing.StoryListingAttribute;
 import io.github.lubosgarancovsky.aurora.domain.project.entity.ProjectEntity;
 import io.github.lubosgarancovsky.aurora.domain.project.query.ImmutableFindProjectByIdQuery;
 import io.github.lubosgarancovsky.aurora.domain.story.command.StoryCommandFactory;
-import io.github.lubosgarancovsky.aurora.domain.story.query.ImmutableStoryDetailQuery;
-import io.github.lubosgarancovsky.aurora.domain.story.query.ImmutableStoryListingQuery;
-import io.github.lubosgarancovsky.aurora.domain.story.query.StoryDetailQuery;
-import io.github.lubosgarancovsky.aurora.domain.story.query.StoryListingQuery;
+import io.github.lubosgarancovsky.aurora.domain.story.query.*;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.EntityCreatedResponse;
-import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.StoryListResponse;
-import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.StoryRequest;
-import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.StoryResponse;
-import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.StoryTypeListResponse;
+import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.*;
 import io.github.lubosgarancovsky.aurora.rest_api.mapper.StoryMapper;
 import io.github.lubosgarancovsky.domain.listing.PageSize;
 import io.github.lubosgarancovsky.restapi.listing.ListFilteringParser;
@@ -35,6 +29,9 @@ public class StoryController extends BaseController {
     private final ListStoryTypesUseCase listStoryTypesUseCase;
     private final UpdateStoryUseCase updateStoryUseCase;
     private final DetailStoryUseCase detailStoryUseCase;
+    private final CreateSubstoryUseCase createSubstoryUseCase;
+    private final UpdateSubstoryUseCase updateSubstoryUseCase;
+    private final SubstoryDetailUseCase substoryDetailUseCase;
     private final JwtService jwtService;
     private final ListFilteringParser listFilteringParser;
     private final ListOrderingParser listOrderingParser;
@@ -45,6 +42,9 @@ public class StoryController extends BaseController {
                            ListStoryTypesUseCase listStoryTypesUseCase,
                            UpdateStoryUseCase updateStoryUseCase,
                            DetailStoryUseCase detailStoryUseCase,
+                           CreateSubstoryUseCase createSubstoryUseCase,
+                           UpdateSubstoryUseCase updateSubstoryUseCase,
+                           SubstoryDetailUseCase substoryDetailUseCase,
                            JwtService jwtService) {
         this.findProjectByIdUseCase = findProjectByIdUseCase;
         this.createStoryUseCase = createStoryUseCase;
@@ -52,6 +52,9 @@ public class StoryController extends BaseController {
         this.listStoryTypesUseCase = listStoryTypesUseCase;
         this.updateStoryUseCase = updateStoryUseCase;
         this.detailStoryUseCase = detailStoryUseCase;
+        this.createSubstoryUseCase = createSubstoryUseCase;
+        this.updateSubstoryUseCase = updateSubstoryUseCase;
+        this.substoryDetailUseCase = substoryDetailUseCase;
         this.jwtService = jwtService;
         this.listFilteringParser = new ListFilteringParser();
         this.listOrderingParser = new ListOrderingParser();
@@ -127,5 +130,41 @@ public class StoryController extends BaseController {
                 .build();
 
         return StoryMapper.map(this.detailStoryUseCase.execute(query));
+    }
+
+    @RequestMapping(
+            path = BASE_SUBSTORY_V1,
+            method = RequestMethod.POST
+    )
+    public EntityCreatedResponse createSubstory(
+            HttpServletRequest httpRequest,
+            @PathVariable String id,
+            @RequestBody SubstoryRequest request
+    ) {
+        String userId = jwtService.extractSubject(httpRequest);
+        return this.createSubstoryUseCase.execute(StoryCommandFactory.createSubstoryCommand(request, userId, id));
+    }
+
+    @RequestMapping(
+            path = SUBSTORY_DETAIL_URI,
+            method = RequestMethod.PUT
+    )
+    public SubstoryResponse updateSubstory(
+            @RequestBody SubstoryRequest request,
+            @PathVariable String id,
+            @PathVariable String substoryId) {
+
+        return StoryMapper.map(this.updateSubstoryUseCase.execute(StoryCommandFactory.updateSubstoryCommand(request, id, substoryId)));
+    }
+
+    @RequestMapping(
+            path = SUBSTORY_DETAIL_URI,
+            method = RequestMethod.GET
+    )
+    public SubstoryResponse detailSubstory (@PathVariable String substoryId) {
+        SubstoryDetailQuery query = ImmutableSubstoryDetailQuery.builder()
+                .substoryId(UUID.fromString(substoryId))
+                .build();
+        return StoryMapper.map(this.substoryDetailUseCase.execute(query));
     }
 }

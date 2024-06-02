@@ -31,6 +31,7 @@ public class StoryMapper {
     public static SubstoryResponse map(SubstoryEntity substory) {
         return ImmutableSubstoryResponse.builder()
                 .id(substory.id().toString())
+                .parentId(substory.parentId().toString())
                 .name(substory.name())
                 .description(substory.description())
                 .code(substory.code())
@@ -48,6 +49,7 @@ public class StoryMapper {
                 .name(story.name())
                 .description(story.description())
                 .code(story.code())
+                .inBoard(story.inBoard())
                 .createdAt(story.createdAt())
                 .createdBy(story.createdBy())
                 .assignedTo(story.assignedTo())

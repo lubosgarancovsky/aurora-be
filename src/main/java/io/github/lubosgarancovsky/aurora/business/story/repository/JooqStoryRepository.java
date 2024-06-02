@@ -19,7 +19,6 @@ import io.github.lubosgarancovsky.aurora.domain.story.query.StoryListingQuery;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.Partners;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryState;
 import io.github.lubosgarancovsky.aurora.repository.model.tables.StoryType;
-import io.github.lubosgarancovsky.aurora.repository.model.tables.records.StoryTypeRecord;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.EntityCreatedResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.ImmutableEntityCreatedResponse;
 import io.github.lubosgarancovsky.aurora.rest_api.api_dto.story.ListOfStories;
@@ -45,7 +44,6 @@ public class JooqStoryRepository extends JooqRepository {
     public EntityCreatedResponse insert(CreateStoryCommand command) {
         Integer count = this.count(command.project().id());
         String code = String.format("%s-%d", command.project().code(), count + 1);
-        UUID todoId = this.stateIdByCode("to-do");
 
         Record record = dslContext.insertInto(STORIES)
                 .set(STORIES.NAME, command.name())
@@ -53,7 +51,7 @@ public class JooqStoryRepository extends JooqRepository {
                 .set(STORIES.CODE, code)
                 .set(STORIES.PROJECT_ID, command.project().id())
                 .set(STORIES.IN_BOARD, command.inBoard())
-                .set(STORIES.STATE_ID, todoId)
+                .set(STORIES.STATE_ID, command.stateId())
                 .set(STORIES.TYPE_ID, command.typeId())
                 .set(STORIES.CREATED_BY, command.userId())
                 .set(STORIES.ASSIGNED_TO, command.assigneeId().orElse(null))
@@ -132,14 +130,6 @@ public class JooqStoryRepository extends JooqRepository {
                 .from(storyCount.unionAll(substoryCount).asTable("combined"));
 
         return combinedCount.fetchOne(0, Integer.class);
-    }
-
-    private UUID stateIdByCode(String code) {
-        return dslContext
-                .select(STORY_STATE.ID)
-                .from(STORY_STATE)
-                .where(STORY_STATE.CODE.eq(code))
-                .fetchOne(0, UUID.class);
     }
 
     private StoryTypeEntity map(Record3<UUID, String, String> record) {

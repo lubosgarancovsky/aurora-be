@@ -27,6 +27,8 @@ public interface StoryResponse {
     StoryStateResponse state();
     StoryTypeResponse type();
 
+    Boolean inBoard();
+
     List<SubstoryResponse> substories();
 
 }
